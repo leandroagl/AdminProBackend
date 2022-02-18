@@ -13,18 +13,17 @@ const app = express();
 // Configurar CORS
 app.use( cors() );
 
+// Lectura y parseo del body
+app.use( express.json() );
+
 // Base de datos
 dbConnection();
 
+// Rutas
+app.use('/api/usuarios', require('./routes/usuarios'));
+
 // Rutas, get del /
-app.get( '/', (req, res) => {
 
-    res.json({
-        ok: true,
-        msg: 'Hola mundo!'
-    })
-
-});
 
 // MEAN_USER
 // 4YJfc8DkfA7GZ7le
