@@ -1,6 +1,7 @@
-const Usuario = require('../models/usuario')
+const { response } = require('express');
+const Usuario = require('../models/usuario');
 
-const getUsuarios = async(req, res) => {
+const getUsuarios = async (req, res) => {
 
     // Buscar usuarios dentro de la coleccion
     const usuarios = await Usuario.find();
@@ -12,21 +13,40 @@ const getUsuarios = async(req, res) => {
 
 }
 
-const crearUsuario = async(req, res) => {
+const crearUsuario = async (req, res = response) => {
 
     const { nombre, email, password } = req.body;
 
-    // Nueva instancia del Schema Usuario
-    const usuario = new Usuario( req.body );
+    try {
 
-    // Se aguarda la finalización de la promesa
-    await usuario.save();
+        // Validar si el ususario existe
+        const existeEmail = await Usuario.findOne({ email });
 
-    res.json({
-        ok: true,
-        usuario
-    });
+        if( existeEmail ){
+            return res.status(400).json({
+                ok: false,
+                msg: "El correo ya está registrado"
+            })
+        }
 
+        // Nueva instancia del Schema Usuario
+        const usuario = new Usuario(req.body);
+
+        // Se aguarda la finalización de la promesa
+        await usuario.save();
+
+        res.json({
+            ok: true,
+            usuario
+        });
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado, revisar logs'
+        })
+    }
 }
 
 
