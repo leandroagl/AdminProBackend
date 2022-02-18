@@ -1,10 +1,13 @@
 const Usuario = require('../models/usuario')
 
-const getUsuarios = (req, res) => {
+const getUsuarios = async(req, res) => {
+
+    // Buscar usuarios dentro de la coleccion
+    const usuarios = await Usuario.find();
 
     res.json({
         ok: true,
-        msg: 'getUsuarios'
+        usuarios
     });
 
 }
