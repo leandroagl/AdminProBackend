@@ -21,3 +21,8 @@ Permite capturar los errores de las validaciones de los campos.
 
 # Middleware personalizado para validar campos
 Se llaman en las rutas utilizando ```express-validator```, para simplificar la logica de las validaciones.
+
+
+# Libreria para encriptar contraseñas
+```npm install bcryptjs```
+

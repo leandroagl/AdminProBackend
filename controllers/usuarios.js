@@ -1,6 +1,5 @@
 const { response } = require('express');
-// Para capturar los errores de validacion en el archivo de rutas
-const { validationResult } = require('express-validator')
+const bcrypt = require('bcryptjs');
 
 const Usuario = require('../models/usuario');
 
@@ -18,10 +17,7 @@ const getUsuarios = async (req, res) => {
 
 const crearUsuario = async (req, res = response) => {
 
-    const { nombre, email, password } = req.body;
-
-
-
+    const { email, password } = req.body;
 
     try {
 
@@ -37,7 +33,13 @@ const crearUsuario = async (req, res = response) => {
 
         // Nueva instancia del Schema Usuario
         const usuario = new Usuario(req.body);
-        // Se aguarda la finalización de la promesa
+
+        // Encriptar contraseña
+        const salt = bcrypt.genSaltSync();
+        usuario.password = bcrypt.hashSync(password, salt)
+
+
+        // Se aguarda usuario al finalización de la promesa
         await usuario.save();
 
         res.json({
