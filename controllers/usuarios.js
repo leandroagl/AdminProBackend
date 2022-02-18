@@ -1,4 +1,7 @@
 const { response } = require('express');
+// Para capturar los errores de validacion en el archivo de rutas
+const { validationResult } = require('express-validator')
+
 const Usuario = require('../models/usuario');
 
 const getUsuarios = async (req, res) => {
@@ -17,6 +20,17 @@ const crearUsuario = async (req, res = response) => {
 
     const { nombre, email, password } = req.body;
 
+    // Obtengo errores de la req
+    const errores = validationResult( req );
+    if( !errores.isEmpty() ){
+        return res.status(400).json({
+            ok:false,
+            errors: errores.mapped()
+        })
+    }
+
+
+
     try {
 
         // Validar si el ususario existe
@@ -31,7 +45,6 @@ const crearUsuario = async (req, res = response) => {
 
         // Nueva instancia del Schema Usuario
         const usuario = new Usuario(req.body);
-
         // Se aguarda la finalización de la promesa
         await usuario.save();
 
