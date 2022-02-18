@@ -20,14 +20,6 @@ const crearUsuario = async (req, res = response) => {
 
     const { nombre, email, password } = req.body;
 
-    // Obtengo errores de la req
-    const errores = validationResult( req );
-    if( !errores.isEmpty() ){
-        return res.status(400).json({
-            ok:false,
-            errors: errores.mapped()
-        })
-    }
 
 
 

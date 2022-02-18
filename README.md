@@ -17,3 +17,7 @@ Permite hacer validaciones de manera semiautomáticas en cada una de las rutas e
 `` npm install express-validator ``
 
 Permite capturar los errores de las validaciones de los campos.
+
+
+# Middleware personalizado para validar campos
+Se llaman en las rutas utilizando ```express-validator```, para simplificar la logica de las validaciones.
