@@ -1,113 +1,128 @@
-const { response } = require('express');
-const bcrypt = require('bcryptjs');
+const { response } = require("express");
+const bcrypt = require("bcryptjs");
 
-const Usuario = require('../models/usuario');
+const Usuario = require("../models/usuario");
 
 const getUsuarios = async (req, res) => {
+  // Buscar usuarios dentro de la coleccion
+  const usuarios = await Usuario.find();
 
-    // Buscar usuarios dentro de la coleccion
-    const usuarios = await Usuario.find();
-
-    res.json({
-        ok: true,
-        usuarios
-    });
-
-}
+  res.json({
+    ok: true,
+    usuarios,
+  });
+};
 
 const crearUsuario = async (req, res = response) => {
+  const { email, password } = req.body;
 
-    const { email, password } = req.body;
+  try {
+    // Validar si el ususario existe
+    const existeEmail = await Usuario.findOne({ email });
 
-    try {
+    if (existeEmail) {
+      return res.status(400).json({
+        ok: false,
+        msg: "El correo ya está registrado",
+      });
+    }
 
-        // Validar si el ususario existe
-        const existeEmail = await Usuario.findOne({ email });
+    // Nueva instancia del Schema Usuario
+    const usuario = new Usuario(req.body);
 
-        if( existeEmail ){
-            return res.status(400).json({
-                ok: false,
-                msg: "El correo ya está registrado"
-            })
-        }
+    // Encriptar contraseña
+    const salt = bcrypt.genSaltSync();
+    usuario.password = bcrypt.hashSync(password, salt);
 
-        // Nueva instancia del Schema Usuario
-        const usuario = new Usuario(req.body);
+    // Se aguarda usuario al finalización de la promesa
+    await usuario.save();
 
-        // Encriptar contraseña
-        const salt = bcrypt.genSaltSync();
-        usuario.password = bcrypt.hashSync(password, salt)
+    res.json({
+      ok: true,
+      usuario,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Error inesperado, revisar logs",
+    });
+  }
+};
 
+const actualizarUsuario = async (req, res = response) => {
+  // TODO: validar token y comprobar si es el usuario correcto
+  const uid = req.params.id;
 
-        // Se aguarda usuario al finalización de la promesa
-        await usuario.save();
+  try {
+    const usuarioDB = await Usuario.findById(uid);
 
-        res.json({
-            ok: true,
-            usuario
+    if (!usuarioDB) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe un usuario con ese id",
+      });
+    }
+
+    // Actualizaciones
+    const { password, google, email, ...campos } = req.body;
+
+    if (usuarioDB.email !== email) {
+      const existeEmail = await Usuario.findOne({ email });
+      if (existeEmail) {
+        return res.status(400).json({
+          ok: false,
+          msg: "Ya existe un usuario con ese email",
         });
-
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({
-            ok: false,
-            msg: 'Error inesperado, revisar logs'
-        })
-    }
-}
-
-
-const actualizarUsuario = async( req, res = response ) => {
-
-    // TODO: validar token y comprobar si es el usuario correcto
-
-    const uid = req.params.id;
-
-    try {
-
-        const usuarioDB = await Usuario.findById(uid);
-
-        if( !usuarioDB ) {
-            return res.status(404).json({
-                ok: false,
-                msg: 'No existe un usuario con ese id'
-            });
-        }
-        
-        // Actualizaciones
-        const campos = req.body;
-
-        if( usuarioDB.email === req.body.email ) {
-            delete campos.email;
-        } else {
-            const existeEmail = await Usuario.findOne( {email: req.body.email} )
-            if( existeEmail){
-                return res.status(400).json({
-                    ok: false,
-                    msg: 'Ya existe un usuario con ese email'
-                })
-            }
-        }
-
-        delete campos.password;
-        delete campos.google;
-
-        const usuarioActualizado = await Usuario.findByIdAndUpdate( uid, campos, { new: true } );
-
-        res.json({
-            ok: true,
-            usuario: usuarioActualizado,
-        })
-        
-    } catch (error) {
-        console.error(error);
-        throw new Error('Error al actualizar el usuario')
+      }
     }
 
-}
+    campos.email = email;
+    const usuarioActualizado = await Usuario.findByIdAndUpdate(uid, campos, {
+      new: true,
+    });
+
+    res.json({
+      ok: true,
+      usuario: usuarioActualizado,
+    });
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error al actualizar el usuario.");
+  }
+};
+
+const borrarUsuario = async (req, res = response) => {
+  const uid = req.params.id;
+
+  try {
+    const usuarioDB = await Usuario.findById(uid);
+
+    if (!usuarioDB) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe un usuario con ese id",
+      });
+    }
+
+    await Usuario.findByIdAndDelete(uid);
+
+    res.status(201).json({
+      ok: true,
+      msg: "Se eliminó el usuario correctamente."
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Error al eliminar usuario de la base de datos.",
+    });
+  }
+};
 
 module.exports = {
-    getUsuarios,
-    crearUsuario,
-    actualizarUsuario
-}
+  getUsuarios,
+  crearUsuario,
+  actualizarUsuario,
+  borrarUsuario,
+};

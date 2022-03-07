@@ -2,7 +2,6 @@ const { response } = require('express');
 const { validationResult } = require('express-validator')
 
 const validarCampos = (req, res = response, next) => {
-
     
     // Obtengo errores de la req
     const errores = validationResult( req );
