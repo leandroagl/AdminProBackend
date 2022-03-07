@@ -2,6 +2,7 @@ const { response } = require("express");
 const bcrypt = require("bcryptjs");
 
 const Usuario = require("../models/usuario");
+const { generarJWT } = require("../helpers/jwt");
 
 const getUsuarios = async (req, res) => {
   // Buscar usuarios dentro de la coleccion
@@ -36,10 +37,14 @@ const crearUsuario = async (req, res = response) => {
 
     // Se aguarda usuario al finalización de la promesa
     await usuario.save();
-
+    
+    // Token
+    const token = await generarJWT( usuario.id )
+    
     res.json({
       ok: true,
       usuario,
+      token
     });
   } catch (error) {
     console.log(error);
