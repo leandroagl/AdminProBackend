@@ -29,6 +29,7 @@ const crearMedico = async(req, res = response) => {
             medicoDB
         })
     } catch (error) {
+        console.log(error);
         res.status(500).json({
             ok: false,
             msg: 'Error al guardar médico en la base de datos, hable con el administrador'
