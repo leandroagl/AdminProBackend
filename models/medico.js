@@ -12,11 +12,13 @@ const MedicoSchema = Schema({
     },
     usuario: {
         type: Schema.Types.ObjectId,
-        ref: 'Usuario'
+        ref: 'Usuario',
+        required: true
     },
-    usuario: {
+    hospital: {
         type: Schema.Types.ObjectId,
-        ref: 'Hospital'
+        ref: 'Hospital',
+        required: true
     }
 });
 
@@ -26,4 +28,4 @@ MedicoSchema.method('toJSON', function() {
     return object;
 })
 
-module.exports = model('Medico', HospitalSchema);
+module.exports = model('Medico', MedicoSchema);

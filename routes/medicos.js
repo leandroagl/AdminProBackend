@@ -19,7 +19,11 @@ router.get("/",
 );
 
 router.post("/",
-  [],
+  [
+    validarJWT,
+    check("nombre", "El nombre del medico es obligatorio").not().isEmpty(),
+    validarCampos
+  ],
   crearMedico
 );
 
