@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+
 const { response } = require('express');
 const { v4: uuidv4 } = require('uuid');
 const { actualizarImagen } = require('../helpers/actualizar-imagen');
@@ -47,6 +50,7 @@ const fileUpload = ( req, res = response ) => {
     // Mover imagenes al path
     file.mv(path, (err) => {
         if (err) {
+            console.log(err);
             return res.status(500).json({
                 ok: false,
                 msg: 'Error al mover la imagen'
@@ -64,6 +68,24 @@ const fileUpload = ( req, res = response ) => {
     });
 }
 
+const retornarImagen = ( req, res ) => {
+
+    const tipo = req.params.tipo;
+    const foto = req.params.foto;
+
+    const pathImg = path.join( __dirname, `../uploads/${ tipo }/${ foto }` );
+
+    // Imagen por defecto
+    if ( fs.existsSync( pathImg ) ) {
+        res.sendFile( pathImg );
+    } else {
+        const pathImg = path.join( __dirname, `../uploads/no-image.png` );
+        res.sendFile( pathImg )
+    }
+}
+
+
 module.exports = {
-    fileUpload
+    fileUpload,
+    retornarImagen
 }
