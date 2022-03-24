@@ -1,22 +1,34 @@
 const { response } = require('express');
 
+const Usuario = require('../models/usuario');
+const Medico = require('../models/medico')
+const Hospital = require('../models/hospital')
 
-const getBusquedasTotales = async(req, res = response) => {
+const getBusquedasGlobales = async(req, res = response) => {
 
     const busqueda = req.params.busqueda;
-    console.log(busqueda);
+    
+    // Expresión regular
+    const regex = new RegExp( busqueda, 'i' );
+
+
+    // Esta es una forma eficiente de resolver varias promesas 
+    // en simultaneo
+    const [ usuarios, medicos, hospitales ] = await Promise.all([
+        Usuario.find({ nombre: regex }),
+        Medico.find({ nombre: regex }),
+        Hospital.find({ nombre: regex }),
+    ]);
 
     res.json({
         ok: true,
-        msg: 'getBusquedasTotales',
-        busqueda
+        usuarios,
+        medicos,
+        hospitales,
     })
-
-
-
 }
 
 
 module.exports = {
-    getBusquedasTotales
+    getBusquedasGlobales
 }
