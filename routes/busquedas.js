@@ -6,12 +6,15 @@ const { Router } = require("express");
 const { validarCampos } = require("../middlewares/validar-campos");
 const { validarJWT } = require("../middlewares/validar-jwt");
 
-const { getBusquedasGlobales } = require('../controllers/busquedas')
+const { getBusquedasGlobales, getDocumentosColeccion } = require('../controllers/busquedas')
 
 const router = Router();
 
 
 router.get("/:busqueda", validarJWT, getBusquedasGlobales);
+
+// Tabla es el nombre de la colección
+router.get("/coleccion/:tabla/:busqueda", validarJWT, getDocumentosColeccion);
 
 
 module.exports = router;

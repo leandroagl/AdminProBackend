@@ -11,7 +11,6 @@ const getBusquedasGlobales = async(req, res = response) => {
     // Expresión regular
     const regex = new RegExp( busqueda, 'i' );
 
-
     // Esta es una forma eficiente de resolver varias promesas 
     // en simultaneo
     const [ usuarios, medicos, hospitales ] = await Promise.all([
@@ -28,7 +27,45 @@ const getBusquedasGlobales = async(req, res = response) => {
     })
 }
 
+const getDocumentosColeccion = async(req, res = response) => {
+
+    const tabla = req.params.tabla;
+    const busqueda = req.params.busqueda;
+    const regex = new RegExp( busqueda, 'i' );
+
+    let data = [];
+
+    switch (tabla) {
+        case 'medicos':
+            data = await Medico.find({ nombre: regex })
+                         .populate('usuario', 'nombre img')
+                         .populate('hospital', 'nombre img');
+        break;
+
+        case 'hospitales':
+            data = await Hospital.find({ nombre: regex })
+                           .populate('usuario', 'nombre img');
+        break;
+
+        case 'usuarios':
+            data = await Usuario.find({ nombre: regex });
+        break;
+
+        default:
+           return res.status(400).json({
+                ok: false,
+                msg: 'La coleccion tiene que ser usuarios/medicos/hospitales'
+            });
+    }
+
+    res.json({
+        ok: true,
+        resultados: data
+    })
+}
+
 
 module.exports = {
-    getBusquedasGlobales
+    getBusquedasGlobales,
+    getDocumentosColeccion
 }
