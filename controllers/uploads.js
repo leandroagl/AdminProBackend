@@ -1,5 +1,6 @@
 const { response } = require('express');
 const { v4: uuidv4 } = require('uuid');
+const { actualizarImagen } = require('../helpers/actualizar-imagen');
 
 const fileUpload = ( req, res = response ) => {
 
@@ -43,7 +44,7 @@ const fileUpload = ( req, res = response ) => {
     // Path para guardar imagen
     const path = `./uploads/${ tipo }/${ nombreArchivo }`;
 
-    // Use the mv() method to place the file somewhere on your server
+    // Mover imagenes al path
     file.mv(path, (err) => {
         if (err) {
             return res.status(500).json({
@@ -51,6 +52,9 @@ const fileUpload = ( req, res = response ) => {
                 msg: 'Error al mover la imagen'
             })
         }
+
+        // Actualizar base de datos
+        actualizarImagen(tipo, id, nombreArchivo);
 
         res.json({
             ok: true,
